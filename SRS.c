@@ -1,6 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>  
-#include <string.h> //문자열 함수사용을 위한 전처리기 구문
+#include <stdio.h>
+#include <string.h> //문자열 함수사용을 위해
 
 typedef struct
 {
@@ -12,7 +12,7 @@ typedef struct
 {
     int phone_backnum; // 뒤의 번호 4자리를 받는 부분
     char m_name[20];  // 이름
-} ID; // 구조체를 정의하고, ID로 선언
+} ID;
 
 int Mode1(); // mode 선택 부분 
 void Admin(); // 관리자 모드 함수
@@ -20,7 +20,7 @@ void User(); // 사용자 모드 함수
 void print_state(); // 출력함수
 int cancel_reservation(); // 예약 취소함수
 int make_membership(); // 멤버쉽 등록
-int check_membership(); // 멤버쉽 확인
+int check_membership(); // 멤버쉽 확인 -> 계산될 때 멤버쉽 확인 위한 함수
 int reservation(); // 예약하기 위한 함수
 int check_state(); // 예약을 확인하기 위한 함수
 int check_price(); // 매출액을 확인하기 위한 함수
@@ -28,38 +28,55 @@ int change_price(); // 각 좌석의 가격을 변경하기 위한 함수
 int reservations(); // 여러 명 예약을 위한 함수
 int print_checkmembership(); // 멤버쉽 확인을 위한 함수
 
+
 #define MAX 80 // 최대값을 79으로 지정
 
 seat g_seat[MAX]; //모든 좌석의 변수
 ID membership[MAX]; // 멤버쉽 등록
 
-// 변수 선언 부분
-
-int y; // 좌석번호를 나타내기 위한 변수
-int g_count; // 예약된 좌석의 개수를 나타내기 위한 변수
-int vp = 5, sp = 4, rp = 3, ap = 2, bp = 1; // vp, sp, rp, ap, bp는 각각 좌석 등급의 지정된 처음 가격
-int v = 0, s = 0, r = 0, a = 0, b = 0; // 좌석등급별 매수
+int y; //y는 좌석번호
+int g_count; //예약된 좌석의 갯수
+int vp = 5, sp = 4, rp = 3, ap = 2, bp = 1; //vp, sp, rp, ap, bp는 각각 좌석 등급의 지정된 처음 가격
+int v = 0, s = 0, r = 0, a = 0, b = 0; //좌석등급별 매수
 int c, x;
-int membership_count = 0; // membership 명수를 카운트하기 위한 변수
-double membership_price_count = 0; // 
+int membership_count = 0;
+double membership_price_count = 0;
 
-
-
-// main 함수 부분
+//g_seat에 모든 좌석 변수를 설정하고 예약된 좌석 개수를 g_count에 받기 위해 변수를 설정함
 int main()
 {
+    int mode;
 
+    while (1)
+    {
+        mode = Mode1();
+        if (mode == 1 || mode == 2)
+        {
+            if (mode == 1)//사용자 모드
+            {
+                User();
+                break;
+            }
+            else if (mode == 2)//관리자 모드
+            {
+                Admin();
+                break;
+            }
+        }
+        else
+            printf("다시 입력하세요 \n");
+    }
 }
 
 int Mode1()
 {
-    int input; // 사용자가 입력한 값을 저장하기 위한 함수
+    int input;
 
     printf("사용자 모드를 사용하시려면 1을 입력\n\n관리자 모드를 사용하시려면 2를 입력\n\n");
     scanf("%d", &input);
     printf("\n");
 
-    return input;  // input 값을 반환
+    return input;
 }
 
 void User()
@@ -193,6 +210,37 @@ int reservations()
                 scanf("%d", &y);
 
                 if (y < 0 || y > 16) //좌석을 1~16이외의 숫자를 넣었을 경우
+                {
+                    printf("잘못 입력하셨습니다. 다시 입력하십시오.\n\n");
+                    continue;
+                }
+
+                member = check_membership();
+                getchar();
+
+                if (member == 1)
+                {
+                    membership_price_count++;
+                    printf("VIP석은 %.1f만원입니다.\n\n", (float)vp - 0.5);
+                    y--; //예약확인시 사용
+                    break;
+                }
+                else
+                {
+                    printf("VIP석은 %d만원입니다.\n\n", vp);
+                    y--; //예약확인시 사용
+                    break;
+                }
+
+            case 2:
+                s++;
+                printf("좌석 종류 = 17 18 19 20 21 22 23 24\n            25 26 27 28 29 30 31 32\n");
+                printf("원하는 좌석을 입력하시오. ");
+                printf("\n번호(17~32) : ");
+
+                scanf("%d", &y);
+
+                if (y < 16 || y > 32) //좌석을 17~32이외의 숫자를 넣었을 경우
                 {
                     printf("잘못 입력하셨습니다. 다시 입력하십시오.\n\n");
                     continue;
@@ -411,6 +459,8 @@ void Admin()
             break; //4번 메뉴(종료)를 선택하면 break를 이용하여 종료
     }
 }
+
+
 int check_price()
 {
     int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0, sum = 0; //각 좌석의 매출액과 총 매출액
@@ -516,5 +566,46 @@ int make_membership()  //멤버쉽 등록정보를 알려준다.
     return 0;
 }
 
+int check_membership()
+{
+    int back_number;
+    char name[80];
 
-///// 추가할 부분 : reservation 함수, print_checkmembership 함수, main 함수 수정
+    printf("전화번호 뒷자리 4자리를 입력하시오: ");
+    scanf("%d", &back_number);
+
+    printf("이름을 입력하시오: ");
+    scanf("%s", &name);
+
+    for (int i = 0; i < membership_count; i++)
+    {
+        if (membership[i].phone_backnum == back_number && strcmp(name, membership[i].m_name) == 0)
+        {
+            return 1; // 멤버쉽 회원이다.
+        }
+    }
+    return 0;
+}
+
+int print_checkmembership()
+{
+    char name[80];
+    int back_number;
+
+    printf("이름을 입력하시오 : ");
+    scanf("%s", name);
+
+    printf("번호를 입력하시오 : ");
+    scanf("%d", &back_number);
+
+    for (int i = 0; i < membership_count; i++)
+    {
+        if (membership[i].phone_backnum == back_number && strcmp(name, membership[i].m_name) == 0)
+        {
+            printf("%s님은 멤버쉽에 가입되어 있습니다.\n", name);
+            return 1; // 멤버쉽 회원이다.
+        }
+    }
+
+    printf("%s님은 멤버쉽에 가입되어 있지 않습니다.\n", name);
+}
